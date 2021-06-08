@@ -106,7 +106,11 @@ function initMap() {
 			let favorites = caches[i].getAttribute("favorites");
 			let founds = caches[i].getAttribute("founds");
 			let not_founds = caches[i].getAttribute("not_founds");
+			let state = caches[i].getAttribute("state");
+			let county = caches[i].getAttribute("county");
+			let publish = caches[i].getAttribute("publish");
 			let curStatus = caches[i].getAttribute("status");
+			let last_log = caches[i].getAttribute("last_log");
 			
 			let point = new google.maps.LatLng(
 			   parseFloat(caches[i].getAttribute("latitude")),
@@ -114,14 +118,30 @@ function initMap() {
 			
 			//temos de planear o que vamos mostrar na info window
 			let html = "" + name;
+			
 			let icon = customIcons[kind] || {};
 			
 			markers[i] = new google.maps.Marker({
 					map: map,
-					kind: kind,
 					position: point,
 					icon: icon.icon,
-					code: code
+					
+					code: code,
+					name: name,
+					owner: owner,
+					altitude: altitude,
+					kind: kind,
+					size: size,
+					difficulty: difficulty,
+					terrain: terrain,
+					favorites: favorites,
+					founds: founds,
+					not_founds: not_founds,
+					state: state,
+					county: county,
+					publish: publish,
+					curStatus : curStatus,
+					last_log: last_log
 			});
 			
 			bounds.extend(point);
@@ -138,7 +158,8 @@ function initMap() {
 			map: map
 		});
 	marker.setVisible(false);
-	mapClick(map,marker);
+	mapOrMarkerClick(map,marker);
+	
 	
 	directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer();
@@ -147,11 +168,35 @@ function initMap() {
     
     dif_min = 0;
     dif_max = 5;
+	
+	//lockar o delete
+	deleteLock();
 }
 
 //-----------------------------------------------------------------------------------
 
-//direcoes
+//delete button lock
+function deleteLock(){
+	document.getElementById("del").elements[1].setAttribute("disabled", "" );
+}
+
+//locks cache info form
+function lockForm(form){
+	for ( i = 0; i < form.elements.length; i++){
+		var n = form.elements[i];
+		n.setAttribute("disabled", "" );;
+	}
+}
+
+//unlocks cache info form
+function unlockForm(form){
+	for ( i = 0; i < form.elements.length; i++){
+		var n = form.elements[i];
+		n.removeAttribute("disabled");;
+	}
+}
+
+//comecar direcoes
 function startRoute(){
     let tmode;
     if(document.getElementById("w").checked) tmode='WALKING'
@@ -209,6 +254,9 @@ function doNothing() {}
 //conseguir associar o dbclick a uma cache e ter informacao de remocao
 function bindRemove(cache,name){
 	google.maps.event.addListener(cache, 'rightclick', () => {
+		var form=document.getElementById("insCache");
+		lockForm(form);
+		
 		//tratar da mudanca do icon
 		if ( apagar != null) {
 			apagar.setIcon(customIcons[apagar.kind].icon);
@@ -220,6 +268,8 @@ function bindRemove(cache,name){
 		let field = document.getElementById("del");
 		let n = field.elements[0];
 		n.value = cache.code;
+		
+		document.getElementById("del").elements[1].removeAttribute("disabled");
 	});
 }
 
@@ -241,34 +291,103 @@ function bindRoute(cache){
 }
 
 //guardar a pos de clickar no mapa e meter no form
-function mapClick(map,marker){
+function mapOrMarkerClick(map,marker){
 	google.maps.event.addListener(map, 'click', function(event) {
+		var form=document.getElementById("insCache");
+		unlockForm(form);
 		
 		marker.setPosition(event.latLng);
 		marker.setVisible(true);
 		
-		var form=document.getElementById("insCache");
-		var latf=form.elements[3];
-		latf.value=event.latLng.lat();
-		var lngf=form.elements[4];
-		lngf.value=event.latLng.lng();
+		setFormDefault(event,form);
+		//mudar o botao para add
+		var botaof = form.elements[18];
+		botaof.value = "Add cache";	
 	});
+	google.maps.event.addListener(marker, 'click', function(event) {
+		var form=document.getElementById("insCache");
+		unlockForm(form);
+		
+		setFormDefault(event,form);
+		//mudar o botao para add
+		var botaof = form.elements[18];
+		botaof.value = "Add cache";	
+	});
+}
+
+function setFormDefault(event,form){
+	for ( i = 0; i < form.elements.length-1; i++){
+		var n = form.elements[i];
+		n.value = "";
+	}
+
+	var latf=form.elements[3];
+	latf.removeAttribute("disabled");
+	latf.value=event.latLng.lat();
+	var lngf=form.elements[4];
+	lngf.removeAttribute("disabled");
+	lngf.value=event.latLng.lng();
 }
 
 //copia informacao da cache mete no form
 function cacheClick(cache){
 	google.maps.event.addListener(cache, 'click', function(event) {
 		var form=document.getElementById("insCache");
-			var latf=form.elements[0];
-			latf.value=cache.code;
+		unlockForm(form);
+		fillFormInfo(cache,form);
+		
+		//mudar o botao para update
+		var botaof = form.elements[18];
+		botaof.value = "Update cache";
 			
-			var latf=form.elements[3];
-			latf.value=event.latLng.lat();
-			var lngf=form.elements[4];
-			lngf.value=event.latLng.lng();
 	});
 }
 
+function fillFormInfo(cache){
+	var form=document.getElementById("insCache");
+		
+		var codef=form.elements[0];
+		codef.value=cache.code;
+		var namef = form.elements[1];
+		namef.value=cache.name;
+		var ownerf = form.elements[2];
+		ownerf.value=cache.owner;
+		
+		form.elements[3].value = cache.position.lat();
+		form.elements[4].value = cache.position.lng();
+		
+		form.elements[3].setAttribute("disabled", "" );
+		form.elements[4].setAttribute("disabled", "" );
+		
+		var altitudef=form.elements[5];
+		altitudef.value=cache.altitude;
+		var kindf=form.elements[6];
+		kindf.value=cache.kind;
+		var sizef = form.elements[7];
+		sizef.value=cache.size;
+		var difficultyf = form.elements[8];
+		difficultyf.value=cache.difficulty;
+		var terrainf=form.elements[9];
+		terrainf.value=cache.terrain;
+		var favoritesf=form.elements[10];
+		favoritesf.value=cache.favorites;
+		var foundsf=form.elements[11];
+		foundsf.value=cache.founds;
+		var nfoundsf=form.elements[12];
+		nfoundsf.value=cache.not_founds;
+		var statef=form.elements[13];
+		statef.value=cache.state;
+		var countyf=form.elements[14];
+		countyf.value=cache.county;
+		var publishf = form.elements[15];
+		publishf.value=cache.publish;
+		var statusf = form.elements[16];
+		statusf.value = cache.curStatus;
+		var llogf = form.elements[17];
+		llogf.value = cache.last_log;
+}
+
+//parte relativa ao pan out
 function panOut(){
     for(let j=0; j<markers.length; j++) {
         if (markers[j].getVisible()) 
@@ -278,8 +397,46 @@ function panOut(){
 }
 
 //faz update do mapa em funcao da legenda
-function checkLegend(tagr) {
-	
+function checkLegend() {
+    for(let j=0; j<markers.length; j++) {
+        let dif = caches[j].getAttribute("difficulty");
+        let status = caches[j].getAttribute("status");
+        let size = caches[j].getAttribute("size");
+        let kind = caches[j].getAttribute("kind");
+        let dif_bool = false;
+        let stat_bool = false;
+        let size_bool = false;
+        let kind_bool = false;
+        switch (status){
+            case 'A':  if (status_A.checked) stat_bool=true; break;
+		    case 'D':  if(status_D.checked) stat_bool=true; break;
+		    case 'E':  if(status_E.checked) stat_bool=true; break;    
+        }
+        switch (size) {
+		      case 'Micro':  if(size_M.checked) size_bool= true; break;
+		      case 'Small':  if(size_S.checked) size_bool=true; break;
+		      case 'Regular':  if(size_R.checked) size_bool=true; break;
+              case 'Unknown': if(size_U.checked) size_bool=true; break;
+              case 'Other':  if(size_O.checked) size_bool=true; break;
+              case 'Large':  if(size_L.checked) size_bool=true; break;
+		       }
+        switch (kind) {
+		      case 'Traditional':  if(Traditional.checked) kind_bool=true; break;
+		      case 'Webcam':  if(Webcam.checked) kind_bool=true; break;
+		      case 'Mystery':  if(Mystery.checked) kind_bool=true; break;
+              case 'Multi':  if(Multi.checked) kind_bool=true; break;
+              case 'Letterbox':   if(Letterbox.checked) kind_bool=true; break;
+              case 'Event':  if(Eventy.checked) kind_bool=true; break;
+              case 'CITO':  if(CITO.checked) kind_bool=true; break;
+              case 'Earthcache':  if(Earthcache.checked) kind_bool=true; break;
+              case 'Wherigo':  if(Wherigo .checked) kind_bool=true; break;
+		       }
+        if(dif<=dif_max && dif>=dif_min)   dif_bool=true;
+        
+        if(dif_bool && stat_bool && size_bool && kind_bool) markers[j].setVisible(true);
+        else markers[j].setVisible(false);
+        
+    }
 }
 
 function updateTextInput(val) {
@@ -294,15 +451,18 @@ function updateDiff(){
             checkLegend('diff');
 }
 
+//verifica select do walking e driving 
 function unselectOpt(box){
     let w = document.getElementById("w");
     let d = document.getElementById("d");
     switch(box){
         case 'w':
             d.checked=false;
+			startRoute();
             break;
         case 'd':
             w.checked=false;
+			startRoute();
             break
     }
 }

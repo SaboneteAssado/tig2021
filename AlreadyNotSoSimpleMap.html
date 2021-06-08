@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mapito Lindu</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="script.js"></script>
+  </head>
+  <body>
+	<div id="tools" align="center">
+	<br>
+		<b>Selected cache info:</b>
+		<br>
+		<br>
+		<form id="insCache" action="insert.php" method="post">
+			Code: <input type="text" name="code" value="" /> <br>
+			Name: <input type="text" name="name" value="" /> <br>
+			Owner: <input type="text" name="owner" value="" /> <br>
+			Latitude: <input type="text" name="latitude" value=""/> <br>
+			Longitude: <input type="text" name="longitude" value=""/> <br>
+			Altitude: <input type="text" name="altitude" value="" /> <br>
+			
+			Kind: <br> 
+				<select id="kindSelect" name="kind" >
+				<option value=""></option>
+				<option value="Traditional">Traditional</option>
+				<option value="Multi">Multi</option>
+				<option value="Wherigo">Wherigo</option>
+				<option value="Webcam">Webcam</option>
+				<option value="CITO">CITO</option>
+				<option value="Earthcache">Earthcache</option>
+				<option value="Event">Event</option>
+				<option value="Mystery">Mystery</option>
+				<option value="Letterbox">Letterbox</option>
+				</select>
+			<br>
+			
+			Size: <br> 
+				<select id="sizeSelect" name="size">
+				<option value=""></option>
+				<option value="Micro">Micro</option>
+				<option value="Small">Small</option>
+				<option value="Regular">Regular</option>
+				<option value="Large">Large</option>
+				<option value="Unknown">Unknown</option>
+				<option value="Other">Other</option>
+				</select>
+			<br>
+			
+			Difficulty: <input type="text" name="difficulty" value=""/> <br>
+			Terrain: <input type="text" name="terrain" value="" /> <br>
+			Favorites: <input type="text" name="favorites" value="" /> <br>
+			Founds: <input type="text" name="founds" value=""/> <br>
+			Not_founds: <input type="text" name="not_founds" value=""/> <br>
+			State: <input type="text" name="state" value="" /> <br>
+			County: <input type="text" name="county" value="" /> <br>
+			Publish: <input type="text" name="publish" value=""/> <br>
+			
+			Status: <br> 
+				<select id="statusSelect" name="status">
+				<option value=""></option>
+				<option value="A">A</option>
+				<option value="D">D</option>
+				<option value="E">E</option>
+				</select>
+			<br>
+			
+			Last_log: <input type="text" name="last_log" value="" /> <br><br>
+			<input type="submit" value="Add cache" name="add" />
+			<!-- <input type="submit" value="Atualizar cache" name="upd" /> -->
+		</form>
+	<br>
+		<form id="del" action="delete.php" method="post">
+			<input type="hidden" name="code"/>
+			<input type="submit" value="Delete cache"/>
+		</form>
+	<br>
+	<br>
+		<!-- Form da legenda do mapa, a seleccao do tipo de cache -->
+		<form id="kind">
+			<b>Cache type:</b>
+			<br>
+			<br>
+			<img src="http://labs.google.com/ridefinder/images/mm_20_red.png" /> Traditional
+			<input type="checkbox" id="Traditional" name="Traditional" value="Traditional" checked="true" onchange="checkLegend('kind')"/>
+			<br>
+			<img src="http://labs.google.com/ridefinder/images/mm_20_green.png" /> Multi
+			<input type="checkbox" id="Multi" name="Multi" value="Multi" checked="true" onchange="checkLegend('kind')"/>
+			<br>
+			<img src="http://labs.google.com/ridefinder/images/mm_20_white.png" /> Wherigo
+			<input type="checkbox" id="Wherigo" name="Wherigo" value="Wherigo" checked="true" onchange="checkLegend('kind')"/>
+			<br>
+			<img src="http://labs.google.com/ridefinder/images/mm_20_blue.png" /> Webcam
+			<input type="checkbox" id="Webcam" name="Webcam" value="Webcam" checked="true" onchange="checkLegend('kind')"/>
+			<br>
+			<img src="http://labs.google.com/ridefinder/images/mm_20_yellow.png" /> CITO
+			<input type="checkbox" id="CITO" name="CITO" value="CITO" checked="true" onchange="checkLegend('kind')"/>
+			<br>
+			<img src="http://labs.google.com/ridefinder/images/mm_20_orange.png" /> Earthcache
+			<input type="checkbox" id="Earthcache" name="Earthcache" value="Earthcache" checked="true" onchange="checkLegend('kind')"/>
+			<br>
+			<img src="http://labs.google.com/ridefinder/images/mm_20_gray.png" /> Event
+			<input type="checkbox" id="Eventy" name="Eventy" value="Eventy" checked="true" onchange="checkLegend('kind')"/>
+			<br>
+			<img src="http://labs.google.com/ridefinder/images/mm_20_brown.png" /> Mystery
+			<input type="checkbox" id="Mystery" name="Mystery" value="Mystery" checked="true" onchange="checkLegend('kind')"/>
+			<br>
+			<img src="http://labs.google.com/ridefinder/images/mm_20_purple.png'" /> Letterbox
+			<input type="checkbox" id="Letterbox" name="Letterbox" value="Letterbox" checked="true" onchange="checkLegend('kind')"/>
+			<br>
+			<br>
+		</form>
+		
+		<form id = "status">
+		<b>Cache status:</b>
+			<br>
+			<br>
+			
+			<img src="http://maps.google.com/mapfiles/kml/pal5/icon48.png" /> A
+			<input type="checkbox" id="status_A" name="A" value="A" tag="check" checked onchange="checkLegend('status')">
+			
+			<br>
+			
+			<img src="http://maps.google.com/mapfiles/kml/pal5/icon51.png" /> D
+			<input type="checkbox" id="status_D" name="D" value="D" tag="check" checked onchange="checkLegend('status')">
+			
+			<br>
+			
+			<img src="http://maps.google.com/mapfiles/kml/pal5/icon52.png" /> E
+			<input type="checkbox" id="status_E" name="E" value="E" tag="check" checked onchange="checkLegend('status')">
+			
+			<br>
+			<br>
+        </form>
+      
+		<form id = "size">
+			<b>Cache size:</b>
+			<br>
+			<br>
+			
+			<img src="http://maps.google.com/mapfiles/kml/pal4/icon11.png" /> Micro
+			<input type="checkbox" id="size_M" name="micro" value="micro" tag="check" checked onchange="checkLegend('size')">
+			
+			<br>
+			 
+			<img src="http://maps.google.com/mapfiles/kml/pal4/icon12.png" /> Small
+			<input type="checkbox" id="size_S" name="small" value="small" tag="check" checked onchange="checkLegend('size')">
+			
+			<br>
+			
+			<img src="http://maps.google.com/mapfiles/kml/pal4/icon13.png" /> Regular
+			<input type="checkbox" id="size_R" name="regular" value="regular" tag="check" checked onchange="checkLegend('size')">
+			
+			<br>
+			
+			<img src="http://maps.google.com/mapfiles/kml/pal4/icon14.png" /> Large
+			<input type="checkbox" id="size_L" name="large" value="large" tag="check" checked onchange="checkLegend('size')">
+			
+			<br>
+			
+			<img src="http://maps.google.com/mapfiles/kml/pal4/icon52.png" /> Unknown
+			<input type="checkbox" id="size_U" name="unknown" value="unknown" tag="check" checked onchange="checkLegend('size')">
+			
+			<br>
+			
+			<img src="http://maps.google.com/mapfiles/kml/pal4/icon24.png" /> Other
+			<input type="checkbox" id="size_O" name="other" value="other" tag="check" checked onchange="checkLegend('size')">
+			<br>
+			
+		</form>
+		<br>
+		
+		<b>Cache difficulty:</b>
+		<div class="multi-range-slider">
+			<input type="range" id="min" min="0" max="5" value="0" step="0.5" list="tickmarks" oninput="updateDiff()">
+			<input type="text" id="min_text" name="min" size="3">
+			<input type="range" id="max" min="0" max="5" value="5" step="0.5" list="tickmarks" oninput="updateDiff()">
+			<input type="text" id="max_text" name="max" size="3"> 
+		</div>
+		<datalist id="tickmarks">
+			<option value="0" label="0">
+			<option value="0.5">
+			<option value="1" label="1">
+			<option value="1.5">
+			<option value="2" label="2">
+			<option value="2.5">
+			<option value="3" label="3">
+			<option value="3.5">
+			<option value="4" label="4">
+			<option value="4.5">
+			<option value="5" label="5">
+		</datalist>
+		<br>
+		<form id="panOut">
+			<input type="button" value="Show filtered caches" onclick="panOut()" />
+		</form>
+		<br>
+		<br>
+		<b>Direction mode:</b>
+		<form id = "travelMode">
+			<input type="checkbox" id="w" name="walking" value="walking" tag="check" oninput="unselectOpt('w')">
+			<label for="walking">Walking</label>
+			<br>
+			<input type="checkbox" id="d" name="driving" value="driving" tag="check" checked oninput="unselectOpt('d')">
+			<label for="driving">Driving</label>
+		</form>
+		<br>
+		<form id="resetDir">
+			<input type="button" value="Reset Directions" onclick="resetDirections()" />
+		</form>
+		<br>
+	</div>
+	
+    <div id="map-canvas"></div>
+
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyChSMR9p3FqWon3rwl0GZVBQ8fBFY0Wi0Y&callback=initMap&libraries=&v=weekly"
+      async
+    ></script>
+  </body>
+</html>

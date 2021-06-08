@@ -9,7 +9,7 @@ $parnode = $dom->appendChild($node);
 
 // Opens a connection to a MySQL server and database
 
-$mysqli= new mysqli('localhost', $username, $password, $database);
+$mysqli= new mysqli($host, $username, $password, $database);
 if ($mysqli->connect_errno) {
     echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
 }
@@ -42,6 +42,10 @@ while ($row = @mysqli_fetch_assoc($result)){
 	$newnode->setAttribute("favorites", $row['favorites']);
 	$newnode->setAttribute("founds", $row['founds']);
 	$newnode->setAttribute("not_founds", $row['not_founds']);
+	$newnode->setAttribute("state", $row['state']);
+	$newnode->setAttribute("county", $row['county']);
+	$newnode->setAttribute("publish", $row['publish']);
+	$newnode->setAttribute("last_log", $row['last_log']);
 	$newnode->setAttribute("status", $row['status']);
 }  
 
